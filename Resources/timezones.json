@@ -1103,5 +1103,57 @@
         "ZGC": "Asia/Shanghai",
         "ZRH": "Europe/Zurich",
         "ZUH": "Asia/Shanghai"
+    },
+    "cityAliases": {
+        "jfk airport": "America/New_York",
+        "new york (jfk)": "America/New_York",
+        "new york (kennedy)": "America/New_York",
+        "london heathrow": "Europe/London",
+        "london gatwick": "Europe/London",
+        "charles de gaulle": "Europe/Paris",
+        "colombo katunayake": "Asia/Colombo"
+    },
+    "cityKeywords": {
+        "kennedy": "America/New_York",
+        "jfk": "America/New_York",
+        "new york": "America/New_York",
+        "los angeles": "America/Los_Angeles",
+        "lax": "America/Los_Angeles",
+        "san francisco": "America/Los_Angeles",
+        "sfo": "America/Los_Angeles",
+        "schiphol": "Europe/Amsterdam",
+        "amsterdam": "Europe/Amsterdam",
+        "heathrow": "Europe/London",
+        "gatwick": "Europe/London",
+        "london": "Europe/London",
+        "charles de gaulle": "Europe/Paris",
+        "cdg": "Europe/Paris",
+        "pudong": "Asia/Shanghai",
+        "shanghai": "Asia/Shanghai",
+        "narita": "Asia/Tokyo",
+        "haneda": "Asia/Tokyo",
+        "tokyo": "Asia/Tokyo",
+        "incheon": "Asia/Seoul",
+        "seoul": "Asia/Seoul",
+        "changi": "Asia/Singapore",
+        "singapore": "Asia/Singapore",
+        "pearson": "America/Toronto",
+        "toronto": "America/Toronto",
+        "barajas": "Europe/Madrid",
+        "madrid": "Europe/Madrid",
+        "fiumicino": "Europe/Rome",
+        "malpensa": "Europe/Rome",
+        "rome": "Europe/Rome",
+        "sheremetyevo": "Europe/Moscow",
+        "domodedovo": "Europe/Moscow",
+        "moscow": "Europe/Moscow"
+    },
+    "preferredAirportsByCity": {
+        "jakarta": "CGK"
+    },
+    "defaultBase": {
+        "city": "Hong Kong",
+        "airport": "HKG",
+        "timezone": "Asia/Hong_Kong"
     }
 }

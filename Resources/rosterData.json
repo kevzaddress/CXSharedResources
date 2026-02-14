@@ -1,4 +1,5 @@
 {
+  "codes" : {
   "1I" : "Transition IPT 1",
   "1J" : "SO Continuation 1R",
   "1K" : "SO Continuation P1",
@@ -504,4 +505,91 @@
   "Z5" : "Proficiency Check Z5",
   "Z6" : "Proficiency Check Z6",
   "ZK" : "Simulator Base Training TRE\/IRE Renewal"
+  },
+  "simulatorMappings" : {
+    "defaultType" : "A350",
+    "defaultRosterDescription" : "Recurrent Training",
+    "typeByPrefix" : {
+      "A" : "A350",
+      "B" : "B747",
+      "C" : "A350",
+      "I" : "A350",
+      "J" : "B777",
+      "M" : "A350",
+      "N" : "A320",
+      "P" : "B777",
+      "S" : "B777",
+      "T" : "A330",
+      "V" : "B747 (MIA)"
+    },
+    "defaultDeviceByPrefix" : {
+      "A" : "CPA20",
+      "B" : "CPA08",
+      "C" : "EU-A0381",
+      "I" : "CAL FFS 12",
+      "J" : "CAL 11",
+      "M" : "CRK01",
+      "N" : "CPA01",
+      "P" : "FAA1232",
+      "S" : "CPA15",
+      "T" : "CPA02",
+      "V" : "FAA1091 (MIA)"
+    },
+    "deviceByPrefix" : {
+      "A" : {
+        "1" : "CPA18",
+        "2" : "CPA20",
+        "8" : "APT2",
+        "9" : "APT1"
+      },
+      "B" : {
+        "1" : "CPA08",
+        "4" : "CPA16",
+        "8" : "IPT",
+        "9" : "IPT"
+      },
+      "C" : {
+        "0" : "EU-A0381"
+      },
+      "I" : {
+        "0" : "CAL FFS 12"
+      },
+      "J" : {
+        "1" : "CAL 11"
+      },
+      "M" : {
+        "1" : "CRK01"
+      },
+      "N" : {
+        "0" : "CPA01",
+        "3" : "CPA21",
+        "4" : "CPA23",
+        "8" : "IPT A320",
+        "9" : "IPT A320"
+      },
+      "P" : {
+        "1" : "FAA1232",
+        "2" : "FAA1340"
+      },
+      "S" : {
+        "1" : "CPA15",
+        "2" : "CPA14",
+        "3" : "CPA17",
+        "8" : "IPT",
+        "9" : "IPT"
+      },
+      "T" : {
+        "0" : "CPA02",
+        "2" : "CPA13",
+        "4" : "CPA19",
+        "7" : "IPT A330",
+        "8" : "IPT A330",
+        "9" : "IPT A330"
+      },
+      "V" : {
+        "1" : "FAA1091 (MIA)",
+        "4" : "FAA1246 (MIA)"
+      }
+    }
+  }
 }
