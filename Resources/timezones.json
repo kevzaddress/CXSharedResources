@@ -915,6 +915,7 @@
         "Ho Chi Minh City": "Asia/Ho_Chi_Minh",
         "Hanoi": "Asia/Ho_Chi_Minh",
         "Surabaya": "Asia/Jakarta",
+        "Bali": "Asia/Makassar",
         "Denpasar": "Asia/Makassar",
         "Penang": "Asia/Kuala_Lumpur",
         "Cebu": "Asia/Manila",
@@ -923,6 +924,7 @@
         "Mumbai": "Asia/Kolkata",
         "Bengaluru": "Asia/Kolkata",
         "Bangalore": "Asia/Kolkata",
+        "Xian": "Asia/Shanghai",
         "Chennai": "Asia/Kolkata",
         "Abu Dhabi": "Asia/Dubai",
         "Doha": "Asia/Qatar",
@@ -1000,6 +1002,7 @@
         "DAM": "Asia/Damascus",
         "DAR": "Africa/Dar_es_Salaam",
         "DEL": "Asia/Kolkata",
+        "DPS": "Asia/Makassar",
         "DME": "Europe/Moscow",
         "DMK": "Asia/Bangkok",
         "DNA": "Asia/Aden",
@@ -1086,6 +1089,7 @@
         "VIE": "Europe/Vienna",
         "VKO": "Europe/Moscow",
         "WAW": "Europe/Warsaw",
+        "XIY": "Asia/Shanghai",
         "YEG": "America/Edmonton",
         "YFB": "America/Iqaluit",
         "YHZ": "America/Halifax",
@@ -1111,7 +1115,13 @@
         "london heathrow": "Europe/London",
         "london gatwick": "Europe/London",
         "charles de gaulle": "Europe/Paris",
-        "colombo katunayake": "Asia/Colombo"
+        "colombo katunayake": "Asia/Colombo",
+        "bali": "Asia/Makassar",
+        "bali denpasar": "Asia/Makassar",
+        "den pasar": "Asia/Makassar",
+        "xian": "Asia/Shanghai",
+        "xi'an": "Asia/Shanghai",
+        "xian xianyang": "Asia/Shanghai"
     },
     "cityKeywords": {
         "kennedy": "America/New_York",
@@ -1149,7 +1159,10 @@
         "moscow": "Europe/Moscow"
     },
     "preferredAirportsByCity": {
-        "jakarta": "CGK"
+        "jakarta": "CGK",
+        "bali": "DPS",
+        "denpasar": "DPS",
+        "xian": "XIY"
     },
     "defaultBase": {
         "city": "Hong Kong",
