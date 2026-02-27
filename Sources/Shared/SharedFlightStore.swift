@@ -8,6 +8,7 @@ final class SharedFlightStore {
     private let flightKeyMapKey = "flightKeyCompositeMap.v1"
     private let rosterUIDMapKey = "flightKeyRosterMap.v1"
     private let flightCaptureCreatedKey = "flightCaptureCreatedKeys.v1"
+    private let flightCaptureCrewCapturedKey = "flightCaptureCrewCapturedKeys.v1"
 
     private let defaults: UserDefaults
     private let queue = DispatchQueue(label: "SharedFlightStore.queue")
@@ -185,6 +186,16 @@ final class SharedFlightStore {
         }
     }
 
+    /// Clears the created marker for one flight key.
+    func clearFlightCaptureCreated(_ flightKey: String) {
+        queue.sync {
+            var created = defaults.array(forKey: flightCaptureCreatedKey) as? [String] ?? []
+            created.removeAll { $0 == flightKey }
+            defaults.set(created, forKey: flightCaptureCreatedKey)
+            debugLog("clearFlightCaptureCreated flightKey=\(flightKey)")
+        }
+    }
+
     /// Checks whether FlightCapture has already pushed this flight key.
     func isFlightCaptureCreated(_ flightKey: String) -> Bool {
         flightCaptureCreatedKeys().contains(flightKey)
@@ -198,10 +209,41 @@ final class SharedFlightStore {
         }
     }
 
-    /// Clears the "created" tracking list.
+    /// Records that crew data was exported for the provided flight key.
+    func markCrewCaptured(_ flightKey: String) {
+        queue.sync {
+            var captured = defaults.array(forKey: flightCaptureCrewCapturedKey) as? [String] ?? []
+            if !captured.contains(flightKey) {
+                captured.append(flightKey)
+                defaults.set(captured, forKey: flightCaptureCrewCapturedKey)
+            }
+            debugLog("markCrewCaptured flightKey=\(flightKey)")
+        }
+    }
+
+    /// Checks whether crew data has already been exported for the provided key.
+    func isCrewCaptured(_ flightKey: String) -> Bool {
+        queue.sync {
+            let array = defaults.array(forKey: flightCaptureCrewCapturedKey) as? [String] ?? []
+            return array.contains(flightKey)
+        }
+    }
+
+    /// Clears the crew-captured marker for one flight key.
+    func clearCrewCaptured(_ flightKey: String) {
+        queue.sync {
+            var captured = defaults.array(forKey: flightCaptureCrewCapturedKey) as? [String] ?? []
+            captured.removeAll { $0 == flightKey }
+            defaults.set(captured, forKey: flightCaptureCrewCapturedKey)
+            debugLog("clearCrewCaptured flightKey=\(flightKey)")
+        }
+    }
+
+    /// Clears FlightCapture-created and crew-captured tracking lists.
     func resetFlightCaptureCreatedKeys() {
         queue.sync {
             defaults.removeObject(forKey: flightCaptureCreatedKey)
+            defaults.removeObject(forKey: flightCaptureCrewCapturedKey)
             debugLog("resetFlightCaptureCreatedKeys")
         }
     }
@@ -212,6 +254,7 @@ final class SharedFlightStore {
             defaults.removeObject(forKey: flightKeyMapKey)
             defaults.removeObject(forKey: rosterUIDMapKey)
             defaults.removeObject(forKey: flightCaptureCreatedKey)
+            defaults.removeObject(forKey: flightCaptureCrewCapturedKey)
             debugLog("reset all stored mappings")
         }
     }
