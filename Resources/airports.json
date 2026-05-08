@@ -23511,7 +23511,8 @@
     "flag": "\ud83c\uddf0\ud83c\udded",
     "hotelInfo": "null",
     "icao": "VDTI",
-    "name": "Techo International Airport"
+    "name": "Techo International Airport",
+    "displayCity": "Phnom Penh"
   },
   "KTJ": {
     "flag": "\ud83c\uddf0\ud83c\uddea",

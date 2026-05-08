@@ -10,7 +10,8 @@ final class SharedFlightStore {
     private let flightCaptureCreatedKey = "flightCaptureCreatedKeys.v1"
     private let flightCaptureCrewCapturedKey = "flightCaptureCrewCapturedKeys.v1"
 
-    private let defaults: UserDefaults
+    private let defaults: UserDefaults?
+    private var inMemoryStore: [String: Any] = [:]
     private let queue = DispatchQueue(label: "SharedFlightStore.queue")
     private let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -22,9 +23,10 @@ final class SharedFlightStore {
     private init() {
         if let sharedDefaults = UserDefaults(suiteName: Self.appGroupIdentifier) {
             defaults = sharedDefaults
+            debugLog("Initialized with app-group defaults: \(Self.appGroupIdentifier)")
         } else {
-            defaults = UserDefaults.standard
-            debugLog("⚠️ Falling back to standard defaults. Check App Group configuration.")
+            defaults = nil
+            debugLog("❌ App-group defaults unavailable (\(Self.appGroupIdentifier)); using in-memory non-persistent store.")
         }
     }
 
@@ -49,15 +51,15 @@ final class SharedFlightStore {
         )
 
         queue.sync {
-            var map = defaults.dictionary(forKey: flightKeyMapKey) as? [String: String] ?? [:]
+            var map = readStringMap(forKey: flightKeyMapKey)
             map[composite] = flightKey
-            defaults.set(map, forKey: flightKeyMapKey)
+            writeStringMap(map, forKey: flightKeyMapKey)
             debugLog("saveMapping composite=\(composite) flightKey=\(flightKey) rosterUID=\(rosterUID ?? "nil")")
 
             if let rosterUID {
-                var rosterMap = defaults.dictionary(forKey: rosterUIDMapKey) as? [String: String] ?? [:]
+                var rosterMap = readStringMap(forKey: rosterUIDMapKey)
                 rosterMap[rosterUID] = flightKey
-                defaults.set(rosterMap, forKey: rosterUIDMapKey)
+                writeStringMap(rosterMap, forKey: rosterUIDMapKey)
             }
         }
     }
@@ -79,7 +81,7 @@ final class SharedFlightStore {
         )
 
         return queue.sync {
-            let map = defaults.dictionary(forKey: flightKeyMapKey) as? [String: String] ?? [:]
+            let map = readStringMap(forKey: flightKeyMapKey)
             let found = map[composite]
             debugLog("lookup composite=\(composite) -> \(found ?? "nil")")
             return found
@@ -89,7 +91,7 @@ final class SharedFlightStore {
     /// Returns the stored flight key for a roster UID if one was saved previously.
     func flightKey(rosterUID: String) -> String? {
         return queue.sync {
-            let rosterMap = defaults.dictionary(forKey: rosterUIDMapKey) as? [String: String] ?? [:]
+            let rosterMap = readStringMap(forKey: rosterUIDMapKey)
             let found = rosterMap[rosterUID]
             debugLog("lookup rosterUID=\(rosterUID) -> \(found ?? "nil")")
             return found
@@ -105,12 +107,13 @@ final class SharedFlightStore {
         let normalizedNumber = FlightKeyFactory.normalizeFlightNumber(flightNumber, airlinePrefix: airlinePrefix)
 
         return queue.sync {
-            guard let map = defaults.dictionary(forKey: flightKeyMapKey) as? [String: String] else {
+            let map = readStringMap(forKey: flightKeyMapKey)
+            guard !map.isEmpty else {
                 return nil
             }
 
             let targetDate = dateFormatter.date(from: date)
-            let flightCaptureCreated = Set(defaults.array(forKey: flightCaptureCreatedKey) as? [String] ?? [])
+            let flightCaptureCreated = Set(readStringArray(forKey: flightCaptureCreatedKey))
             var exactCandidate: (flightKey: String, from: String, to: String)?
             var fallback: (flightKey: String, from: String, to: String, delta: Int)?
 
@@ -167,9 +170,9 @@ final class SharedFlightStore {
     /// Removes a roster mapping without touching the underlying composite map.
     func removeRosterMapping(forRosterUID rosterUID: String) {
         queue.sync {
-            var rosterMap = defaults.dictionary(forKey: rosterUIDMapKey) as? [String: String] ?? [:]
+            var rosterMap = readStringMap(forKey: rosterUIDMapKey)
             rosterMap.removeValue(forKey: rosterUID)
-            defaults.set(rosterMap, forKey: rosterUIDMapKey)
+            writeStringMap(rosterMap, forKey: rosterUIDMapKey)
             debugLog("removeRosterMapping rosterUID=\(rosterUID)")
         }
     }
@@ -177,10 +180,10 @@ final class SharedFlightStore {
     /// Records that FlightCapture created/updated a flight for the provided key.
     func markFlightCaptureCreated(_ flightKey: String) {
         queue.sync {
-            var created = defaults.array(forKey: flightCaptureCreatedKey) as? [String] ?? []
+            var created = readStringArray(forKey: flightCaptureCreatedKey)
             if !created.contains(flightKey) {
                 created.append(flightKey)
-                defaults.set(created, forKey: flightCaptureCreatedKey)
+                writeStringArray(created, forKey: flightCaptureCreatedKey)
             }
             debugLog("markFlightCaptureCreated flightKey=\(flightKey)")
         }
@@ -189,9 +192,9 @@ final class SharedFlightStore {
     /// Clears the created marker for one flight key.
     func clearFlightCaptureCreated(_ flightKey: String) {
         queue.sync {
-            var created = defaults.array(forKey: flightCaptureCreatedKey) as? [String] ?? []
+            var created = readStringArray(forKey: flightCaptureCreatedKey)
             created.removeAll { $0 == flightKey }
-            defaults.set(created, forKey: flightCaptureCreatedKey)
+            writeStringArray(created, forKey: flightCaptureCreatedKey)
             debugLog("clearFlightCaptureCreated flightKey=\(flightKey)")
         }
     }
@@ -204,7 +207,7 @@ final class SharedFlightStore {
     /// Returns all flight keys that FlightCapture has already exported.
     func flightCaptureCreatedKeys() -> Set<String> {
         queue.sync {
-            let array = defaults.array(forKey: flightCaptureCreatedKey) as? [String] ?? []
+            let array = readStringArray(forKey: flightCaptureCreatedKey)
             return Set(array)
         }
     }
@@ -212,10 +215,10 @@ final class SharedFlightStore {
     /// Records that crew data was exported for the provided flight key.
     func markCrewCaptured(_ flightKey: String) {
         queue.sync {
-            var captured = defaults.array(forKey: flightCaptureCrewCapturedKey) as? [String] ?? []
+            var captured = readStringArray(forKey: flightCaptureCrewCapturedKey)
             if !captured.contains(flightKey) {
                 captured.append(flightKey)
-                defaults.set(captured, forKey: flightCaptureCrewCapturedKey)
+                writeStringArray(captured, forKey: flightCaptureCrewCapturedKey)
             }
             debugLog("markCrewCaptured flightKey=\(flightKey)")
         }
@@ -224,7 +227,7 @@ final class SharedFlightStore {
     /// Checks whether crew data has already been exported for the provided key.
     func isCrewCaptured(_ flightKey: String) -> Bool {
         queue.sync {
-            let array = defaults.array(forKey: flightCaptureCrewCapturedKey) as? [String] ?? []
+            let array = readStringArray(forKey: flightCaptureCrewCapturedKey)
             return array.contains(flightKey)
         }
     }
@@ -232,9 +235,9 @@ final class SharedFlightStore {
     /// Clears the crew-captured marker for one flight key.
     func clearCrewCaptured(_ flightKey: String) {
         queue.sync {
-            var captured = defaults.array(forKey: flightCaptureCrewCapturedKey) as? [String] ?? []
+            var captured = readStringArray(forKey: flightCaptureCrewCapturedKey)
             captured.removeAll { $0 == flightKey }
-            defaults.set(captured, forKey: flightCaptureCrewCapturedKey)
+            writeStringArray(captured, forKey: flightCaptureCrewCapturedKey)
             debugLog("clearCrewCaptured flightKey=\(flightKey)")
         }
     }
@@ -242,8 +245,8 @@ final class SharedFlightStore {
     /// Clears FlightCapture-created and crew-captured tracking lists.
     func resetFlightCaptureCreatedKeys() {
         queue.sync {
-            defaults.removeObject(forKey: flightCaptureCreatedKey)
-            defaults.removeObject(forKey: flightCaptureCrewCapturedKey)
+            removeValue(forKey: flightCaptureCreatedKey)
+            removeValue(forKey: flightCaptureCrewCapturedKey)
             debugLog("resetFlightCaptureCreatedKeys")
         }
     }
@@ -251,10 +254,10 @@ final class SharedFlightStore {
     /// Removes all stored flight data. Intended for debugging or unit tests.
     func reset() {
         queue.sync {
-            defaults.removeObject(forKey: flightKeyMapKey)
-            defaults.removeObject(forKey: rosterUIDMapKey)
-            defaults.removeObject(forKey: flightCaptureCreatedKey)
-            defaults.removeObject(forKey: flightCaptureCrewCapturedKey)
+            removeValue(forKey: flightKeyMapKey)
+            removeValue(forKey: rosterUIDMapKey)
+            removeValue(forKey: flightCaptureCreatedKey)
+            removeValue(forKey: flightCaptureCrewCapturedKey)
             debugLog("reset all stored mappings")
         }
     }
@@ -283,5 +286,43 @@ final class SharedFlightStore {
         #if DEBUG
         print("[SharedFlightStore] \(message)")
         #endif
+    }
+
+    private func readStringMap(forKey key: String) -> [String: String] {
+        if let defaults {
+            return defaults.dictionary(forKey: key) as? [String: String] ?? [:]
+        }
+        return inMemoryStore[key] as? [String: String] ?? [:]
+    }
+
+    private func writeStringMap(_ value: [String: String], forKey key: String) {
+        if let defaults {
+            defaults.set(value, forKey: key)
+            return
+        }
+        inMemoryStore[key] = value
+    }
+
+    private func readStringArray(forKey key: String) -> [String] {
+        if let defaults {
+            return defaults.array(forKey: key) as? [String] ?? []
+        }
+        return inMemoryStore[key] as? [String] ?? []
+    }
+
+    private func writeStringArray(_ value: [String], forKey key: String) {
+        if let defaults {
+            defaults.set(value, forKey: key)
+            return
+        }
+        inMemoryStore[key] = value
+    }
+
+    private func removeValue(forKey key: String) {
+        if let defaults {
+            defaults.removeObject(forKey: key)
+            return
+        }
+        inMemoryStore.removeValue(forKey: key)
     }
 }
