@@ -5,6 +5,7 @@ final class AirportDirectory {
     static let shared = AirportDirectory()
 
     private var icaoToIATA: [String: String] = [:]
+    private var iataToName: [String: String] = [:]
     private var iataToTimeZone: [String: TimeZone] = [:]
 
     private init() {
@@ -21,6 +22,16 @@ final class AirportDirectory {
         }
 
         if let iata = icaoToIATA[normalized], let tz = iataToTimeZone[iata] {
+            return tz
+        }
+
+        if let name = iataToName[normalized], let tz = iataToTimeZone[name.uppercased()] {
+            return tz
+        }
+
+        if let iata = icaoToIATA[normalized],
+           let name = iataToName[iata],
+           let tz = iataToTimeZone[name.uppercased()] {
             return tz
         }
 
@@ -41,6 +52,9 @@ final class AirportDirectory {
             if let raw = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
                 for (iata, value) in raw {
                     guard let dict = value as? [String: Any] else { continue }
+                    if let name = dict["name"] as? String, !name.isEmpty {
+                        iataToName[iata.uppercased()] = name.uppercased()
+                    }
                     if let icao = dict["icao"] as? String, !icao.isEmpty {
                         icaoToIATA[icao.uppercased()] = iata.uppercased()
                     }
@@ -62,6 +76,14 @@ final class AirportDirectory {
                 for (iata, identifier) in airports {
                     if let tz = TimeZone(identifier: identifier) {
                         iataToTimeZone[iata.uppercased()] = tz
+                    }
+                }
+            }
+            if let raw = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+               let cities = raw["cities"] as? [String: String] {
+                for (city, identifier) in cities {
+                    if let tz = TimeZone(identifier: identifier) {
+                        iataToTimeZone[city.uppercased()] = tz
                     }
                 }
             }
