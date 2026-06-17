@@ -186,6 +186,7 @@
   "FR" : "FTO Aircraft Trainer Training",
   "FRD" : "747-400 ERF and BCF Differences Course.Report at 08:30 on first day at TTS 5\/F CX FTC",
   "FRL" : "Relief Qualified Pilot Workshop",
+  "FS" : "Sectors with FST member",
   "FSM" : "Fleet Standardization Meeting",
   "FT" : "Sectors Under Observation",
   "FTC" : "Flying Training Workshop",
@@ -354,6 +355,7 @@
   "PEL" : "Paternity Leave",
   "PER" : "Performance Transport",
   "PFD" : "Post Flight Duty",
+  "PFM" : "Personal Force Majeure",
   "PL" : "Post FO upgrade line check",
   "PN 00" : "Pilot Meeting",
   "PN 02" : "Pilot meeting",
@@ -410,7 +412,7 @@
   "RW" : "RNAV (RNP)\/GLS Initial Training",
   "RX" : "RNAV (RNP) GLS Recurrent",
   "RY" : "3 Month Recency Simulator",
-  "RZ" : "RQ and 747-8 Familiarization Sector",
+  "RZ" : "Long Haul Consolidation",
   "S1" : "Simulator Training for pre-528 Session 1",
   "S2" : "Simulator Training for pre-528 Session 2",
   "S3" : "Simulator Training for pre-528 Session 3",
@@ -518,7 +520,7 @@
       "C" : "A350",
       "I" : "A350",
       "J" : "B777",
-      "M" : "A350",
+      "M" : "A330",
       "N" : "A320",
       "P" : "B777",
       "S" : "B777",
@@ -531,7 +533,7 @@
       "C" : "EU-A0381",
       "I" : "CAL FFS 12",
       "J" : "CAL 11",
-      "M" : "CRK01",
+      "M" : "CRK02",
       "N" : "CPA01",
       "P" : "FAA1232",
       "S" : "CPA15",
@@ -562,7 +564,7 @@
         "1" : "CAL 11"
       },
       "M" : {
-        "1" : "CRK01"
+        "1" : "CRK02"
       },
       "N" : {
         "0" : "CPA01",
