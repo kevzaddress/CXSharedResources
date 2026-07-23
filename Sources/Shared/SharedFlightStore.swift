@@ -9,6 +9,7 @@ final class SharedFlightStore {
     private let rosterUIDMapKey = "flightKeyRosterMap.v1"
     private let flightCaptureCreatedKey = "flightCaptureCreatedKeys.v1"
     private let flightCaptureCrewCapturedKey = "flightCaptureCrewCapturedKeys.v1"
+    private let flightDutyTimesKey = "flightDutyTimes.v1"
 
     private let defaults: UserDefaults?
     private var inMemoryStore: [String: Any] = [:]
@@ -31,6 +32,20 @@ final class SharedFlightStore {
     }
 
     // MARK: - Public API
+
+    struct DutyTimes: Codable {
+        let onDutyTimeInterval: TimeInterval?
+        let offDutyTimeInterval: TimeInterval?
+        let source: String
+
+        var onDuty: Date? {
+            onDutyTimeInterval.map(Date.init(timeIntervalSince1970:))
+        }
+
+        var offDuty: Date? {
+            offDutyTimeInterval.map(Date.init(timeIntervalSince1970:))
+        }
+    }
 
     /// Persists the mapping between a flight signature and its key, optionally tying it to a roster UID.
     func saveMapping(
@@ -61,6 +76,20 @@ final class SharedFlightStore {
                 rosterMap[rosterUID] = flightKey
                 writeStringMap(rosterMap, forKey: rosterUIDMapKey)
             }
+        }
+    }
+
+    func saveRosterDutyTimes(flightKey: String, onDuty: Date?, offDuty: Date? = nil) {
+        saveDutyTimes(flightKey: flightKey, onDuty: onDuty, offDuty: offDuty, source: "Roster")
+    }
+
+    func saveManualDutyTimes(flightKey: String, onDuty: Date?, offDuty: Date? = nil) {
+        saveDutyTimes(flightKey: flightKey, onDuty: onDuty, offDuty: offDuty, source: "Manual")
+    }
+
+    func dutyTimes(for flightKey: String) -> DutyTimes? {
+        queue.sync {
+            readDutyTimesMap()[flightKey]
         }
     }
 
@@ -258,6 +287,7 @@ final class SharedFlightStore {
             removeValue(forKey: rosterUIDMapKey)
             removeValue(forKey: flightCaptureCreatedKey)
             removeValue(forKey: flightCaptureCrewCapturedKey)
+            removeValue(forKey: flightDutyTimesKey)
             debugLog("reset all stored mappings")
         }
     }
@@ -286,6 +316,37 @@ final class SharedFlightStore {
         #if DEBUG
         print("[SharedFlightStore] \(message)")
         #endif
+    }
+
+    private func saveDutyTimes(flightKey: String, onDuty: Date?, offDuty: Date?, source: String) {
+        queue.sync {
+            var map = readDutyTimesMap()
+            if source == "Roster", map[flightKey]?.source == "Manual" {
+                debugLog("preserved manual duty times for flightKey=\(flightKey)")
+                return
+            }
+
+            map[flightKey] = DutyTimes(
+                onDutyTimeInterval: onDuty?.timeIntervalSince1970,
+                offDutyTimeInterval: offDuty?.timeIntervalSince1970,
+                source: source
+            )
+            writeDutyTimesMap(map)
+            debugLog("saveDutyTimes flightKey=\(flightKey) source=\(source)")
+        }
+    }
+
+    private func readDutyTimesMap() -> [String: DutyTimes] {
+        guard let data = readData(forKey: flightDutyTimesKey),
+              let decoded = try? JSONDecoder().decode([String: DutyTimes].self, from: data) else {
+            return [:]
+        }
+        return decoded
+    }
+
+    private func writeDutyTimesMap(_ value: [String: DutyTimes]) {
+        guard let data = try? JSONEncoder().encode(value) else { return }
+        writeData(data, forKey: flightDutyTimesKey)
     }
 
     private func readStringMap(forKey key: String) -> [String: String] {
@@ -324,5 +385,20 @@ final class SharedFlightStore {
             return
         }
         inMemoryStore.removeValue(forKey: key)
+    }
+
+    private func readData(forKey key: String) -> Data? {
+        if let defaults {
+            return defaults.data(forKey: key)
+        }
+        return inMemoryStore[key] as? Data
+    }
+
+    private func writeData(_ value: Data, forKey key: String) {
+        if let defaults {
+            defaults.set(value, forKey: key)
+            return
+        }
+        inMemoryStore[key] = value
     }
 }
