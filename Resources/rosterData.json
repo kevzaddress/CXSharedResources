@@ -356,7 +356,7 @@
   "PER" : "Performance Transport",
   "PFD" : "Post Flight Duty",
   "PFM" : "Personal Force Majeure",
-  "PL" : "Post FO upgrade line check",
+  "PL" : "Post Consolidation FO Line Check",
   "PN 00" : "Pilot Meeting",
   "PN 02" : "Pilot meeting",
   "PQD" : "Professional Qualification Duty",
@@ -520,11 +520,11 @@
       "C" : "A350",
       "I" : "A350",
       "J" : "B777",
-      "M" : "A330",
       "N" : "A320",
       "P" : "B777",
       "S" : "B777",
       "T" : "A330",
+      "U" : "B777",
       "V" : "B747 (MIA)"
     },
     "defaultDeviceByPrefix" : {
@@ -533,11 +533,11 @@
       "C" : "EU-A0381",
       "I" : "CAL FFS 12",
       "J" : "CAL 11",
-      "M" : "CRK02",
       "N" : "CPA01",
       "P" : "FAA1232",
       "S" : "CPA15",
       "T" : "CPA02",
+      "U" : "CPA22",
       "V" : "FAA1091 (MIA)"
     },
     "deviceByPrefix" : {
@@ -563,9 +563,6 @@
       "J" : {
         "1" : "CAL 11"
       },
-      "M" : {
-        "1" : "CRK02"
-      },
       "N" : {
         "0" : "CPA01",
         "3" : "CPA21",
@@ -581,7 +578,6 @@
         "1" : "CPA15",
         "2" : "CPA14",
         "3" : "CPA17",
-        "4" : "CPA22",
         "8" : "IPT",
         "9" : "IPT"
       },
@@ -592,6 +588,9 @@
         "7" : "IPT A330",
         "8" : "IPT A330",
         "9" : "IPT A330"
+      },
+      "U" : {
+        "4" : "CPA22"
       },
       "V" : {
         "1" : "FAA1091 (MIA)",
