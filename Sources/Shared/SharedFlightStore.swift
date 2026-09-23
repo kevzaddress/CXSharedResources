@@ -37,6 +37,8 @@ final class SharedFlightStore {
         let onDutyTimeInterval: TimeInterval?
         let offDutyTimeInterval: TimeInterval?
         let source: String
+        /// Airport whose local clock is used by roster on-duty values. Nil in legacy records.
+        var reportingAirport: String? = nil
 
         var onDuty: Date? {
             onDutyTimeInterval.map(Date.init(timeIntervalSince1970:))
@@ -79,8 +81,8 @@ final class SharedFlightStore {
         }
     }
 
-    func saveRosterDutyTimes(flightKey: String, onDuty: Date?, offDuty: Date? = nil) {
-        saveDutyTimes(flightKey: flightKey, onDuty: onDuty, offDuty: offDuty, source: "Roster")
+    func saveRosterDutyTimes(flightKey: String, onDuty: Date?, offDuty: Date? = nil, reportingAirport: String? = nil) {
+        saveDutyTimes(flightKey: flightKey, onDuty: onDuty, offDuty: offDuty, source: "Roster", reportingAirport: reportingAirport)
     }
 
     func saveManualDutyTimes(flightKey: String, onDuty: Date?, offDuty: Date? = nil) {
@@ -318,7 +320,7 @@ final class SharedFlightStore {
         #endif
     }
 
-    private func saveDutyTimes(flightKey: String, onDuty: Date?, offDuty: Date?, source: String) {
+    private func saveDutyTimes(flightKey: String, onDuty: Date?, offDuty: Date?, source: String, reportingAirport: String? = nil) {
         queue.sync {
             var map = readDutyTimesMap()
             if source == "Roster", map[flightKey]?.source == "Manual" {
@@ -329,7 +331,8 @@ final class SharedFlightStore {
             map[flightKey] = DutyTimes(
                 onDutyTimeInterval: onDuty?.timeIntervalSince1970,
                 offDutyTimeInterval: offDuty?.timeIntervalSince1970,
-                source: source
+                source: source,
+                reportingAirport: reportingAirport
             )
             writeDutyTimesMap(map)
             debugLog("saveDutyTimes flightKey=\(flightKey) source=\(source)")
